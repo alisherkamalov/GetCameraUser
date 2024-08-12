@@ -22,7 +22,6 @@ export default {
       video.srcObject = stream;
       video.onloadedmetadata = () => {
         video.play();
-        this.takePhoto(); // Automatically take a photo on page load
       };
     } catch (err) {
       console.error('Ошибка доступа к камере:', err);
@@ -48,30 +47,24 @@ export default {
           }
         };
 
-        mediaRecorder.onstop = () => {
+        mediaRecorder.onstop = async () => {
           const blob = new Blob(chunks, { type: 'video/webm' });
-          const formData = new FormData();
-          formData.append('video', blob, 'video.webm');
+          const arrayBuffer = await blob.arrayBuffer();
+          const base64 = Buffer.from(arrayBuffer).toString('base64');
 
-          console.log(formData)
-          axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/createphoto/', formData, {
+          axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/createphoto/', {
+            image: base64
+          }, {
             headers: {
-              'Content-Type': 'multipart/form-data',
+              'Content-Type': 'application/json',
             },
           })
           .then(response => {
             console.log('Photo uploaded successfully:', response.data);
-            this.photo = URL.createObjectURL(blob); // Отображаем фото на странице
+            this.photo = `data:image/png;base64,${base64}`; // Отображаем фото на странице
           })
           .catch(error => {
             console.error('Error uploading photo:', error);
-            if (error.response) {
-              console.error('Response error:', error.response.data);
-            } else if (error.request) {
-              console.error('Request error:', error.request);
-            } else {
-              console.error('General error:', error.message);
-            }
           });
         };
 
@@ -93,5 +86,6 @@ export default {
   display: none;
 }
 </style>
+
 
 
