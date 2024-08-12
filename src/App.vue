@@ -48,7 +48,7 @@ export default {
         const formData = new FormData();
         formData.append('image', blob, 'photo.png');
 
-        axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/createphoto/', formData, {
+        axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/photos/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
