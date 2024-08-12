@@ -52,7 +52,7 @@ export default {
           const arrayBuffer = await blob.arrayBuffer();
           const base64 = Buffer.from(arrayBuffer).toString('base64');
 
-          axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/createphoto/', {
+          axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/photos/', {
             image: base64
           }, {
             headers: {
