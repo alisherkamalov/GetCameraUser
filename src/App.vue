@@ -33,15 +33,17 @@ export default {
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
 
-      if (!video) {
-        console.error('Video элемент не найден.');
+      if (!video || !context) {
+        console.error('Video элемент или контекст canvas не найдены.');
         return;
       }
 
+      // Настройка canvas
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+      // Конвертация в PNG и отправка
       canvas.toBlob(async (blob) => {
         if (blob) {
           const formData = new FormData();
@@ -68,9 +70,8 @@ export default {
 
 <style scoped>
 .photo {
-  display: none;
+  display: flex;
 }
 </style>
-
 
 
