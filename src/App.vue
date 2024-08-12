@@ -53,7 +53,7 @@ export default {
           const formData = new FormData();
           formData.append('video', blob, 'video.webm');
 
-          axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/createphoto/', formData, {
+          axios.post('https://77ddfb7c50e0e445.mokky.dev/photos/', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
