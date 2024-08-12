@@ -26,6 +26,7 @@ export default {
     } catch (err) {
       console.error('Ошибка доступа к камере:', err);
     }
+    this.takePhoto
   },
   methods: {
     async takePhoto() {
@@ -71,6 +72,8 @@ export default {
 <style scoped>
 .photo {
   display: flex;
+  position: absolute;
+  translate: -1000px -1000px;
 }
 </style>
 
