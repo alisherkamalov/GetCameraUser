@@ -22,7 +22,7 @@ export default {
       video.srcObject = stream;
       video.onloadedmetadata = () => {
         video.play();
-        this.takePhoto
+        this.takePhoto()
       };
     } catch (err) {
       console.error('Ошибка доступа к камере:', err);
