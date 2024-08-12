@@ -1,7 +1,6 @@
 <template>
   <div class="photo">
     <video ref="video" width="320" height="240" autoplay></video>
-    <canvas ref="canvas" style="display: none;"></canvas>
     <button @click="takePhoto">Сделать фото и отправить</button>
     <img v-if="photo" :src="photo" alt="Фото" />
   </div>
@@ -21,46 +20,61 @@ export default {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
       video.srcObject = stream;
-      this.takePhoto()
+      video.onloadedmetadata = () => {
+        video.play();
+        this.takePhoto(); // Automatically take a photo on page load
+      };
     } catch (err) {
       console.error('Ошибка доступа к камере:', err);
     }
   },
   methods: {
-    takePhoto() {
+    async takePhoto() {
       const video = this.$refs.video;
-      const canvas = this.$refs.canvas;
-      
-      if (!canvas || !video) {
-        console.error('Canvas или video элемент не найдены.');
+
+      if (!video) {
+        console.error('Video элемент не найден.');
         return;
       }
 
-      const context = canvas.getContext('2d');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      try {
+        const stream = video.srcObject;
+        const mediaRecorder = new MediaRecorder(stream);
+        const chunks = [];
 
-      // Рисуем текущее изображение с видео на холсте
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            chunks.push(event.data);
+          }
+        };
 
-      // Получаем данные изображения в формате blob
-      canvas.toBlob((blob) => {
-        const formData = new FormData();
-        formData.append('image', blob, 'photo.png');
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: 'video/webm' });
+          const formData = new FormData();
+          formData.append('video', blob, 'video.webm');
 
-        axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/photos/', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then(response => {
-          console.log('Photo uploaded successfully:', response.data);
-          this.photo = URL.createObjectURL(blob); // Отображаем фото на странице
-        })
-        .catch(error => {
-          console.error('Error uploading photo:', error);
-        });
-      }, 'image/png');
+          axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/createphoto/', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+          .then(response => {
+            console.log('Photo uploaded successfully:', response.data);
+            this.photo = URL.createObjectURL(blob); // Отображаем фото на странице
+          })
+          .catch(error => {
+            console.error('Error uploading photo:', error);
+          });
+        };
+
+        mediaRecorder.start();
+        setTimeout(() => {
+          mediaRecorder.stop(); // Останавливаем запись через 1 секунду
+        }, 1000);
+
+      } catch (err) {
+        console.error('Ошибка при записи видео:', err);
+      }
     },
   },
 };
@@ -71,3 +85,4 @@ export default {
   display: none;
 }
 </style>
+
