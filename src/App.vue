@@ -22,11 +22,12 @@ export default {
       video.srcObject = stream;
       video.onloadedmetadata = () => {
         video.play();
+        this.takePhoto
       };
     } catch (err) {
       console.error('Ошибка доступа к камере:', err);
     }
-    this.takePhoto
+  
   },
   methods: {
     async takePhoto() {
