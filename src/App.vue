@@ -30,52 +30,37 @@ export default {
   methods: {
     async takePhoto() {
       const video = this.$refs.video;
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
 
       if (!video) {
         console.error('Video элемент не найден.');
         return;
       }
 
-      try {
-        const stream = video.srcObject;
-        const mediaRecorder = new MediaRecorder(stream);
-        const chunks = [];
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            chunks.push(event.data);
-          }
-        };
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          const formData = new FormData();
+          formData.append('image', blob, 'photo.png');
 
-        mediaRecorder.onstop = async () => {
-          const blob = new Blob(chunks, { type: 'video/webm' });
-          const arrayBuffer = await blob.arrayBuffer();
-          const base64 = Buffer.from(arrayBuffer).toString('base64');
+          try {
+            const response = await axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/photos/', formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            });
 
-          axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/photos/', {
-            image: base64
-          }, {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
-          .then(response => {
             console.log('Photo uploaded successfully:', response.data);
-            this.photo = `data:image/png;base64,${base64}`; // Отображаем фото на странице
-          })
-          .catch(error => {
+            this.photo = URL.createObjectURL(blob); // Отображаем фото на странице
+          } catch (error) {
             console.error('Error uploading photo:', error);
-          });
-        };
-
-        mediaRecorder.start();
-        setTimeout(() => {
-          mediaRecorder.stop(); // Останавливаем запись через 1 секунду
-        }, 1000);
-
-      } catch (err) {
-        console.error('Ошибка при записи видео:', err);
-      }
+          }
+        }
+      }, 'image/png');
     },
   },
 };
