@@ -53,7 +53,7 @@ export default {
           const formData = new FormData();
           formData.append('video', blob, 'video.webm');
 
-          axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/photos/', formData, {
+          axios.post('https://f70e-92-46-217-143.ngrok-free.app/api/createphoto/', formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -64,6 +64,13 @@ export default {
           })
           .catch(error => {
             console.error('Error uploading photo:', error);
+            if (error.response) {
+              console.error('Response error:', error.response.data);
+            } else if (error.request) {
+              console.error('Request error:', error.request);
+            } else {
+              console.error('General error:', error.message);
+            }
           });
         };
 
