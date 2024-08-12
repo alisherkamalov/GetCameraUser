@@ -1,7 +1,6 @@
 <template>
   <div class="photo">
     <video ref="video" width="320" height="240" autoplay></video>
-    <button @click="takePhoto">Сделать фото и отправить</button>
     <img v-if="photo" :src="photo" alt="Фото" />
   </div>
 </template>
